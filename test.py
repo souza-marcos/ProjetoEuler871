@@ -1,15 +1,15 @@
-from functools import reduce
-
+# A solução é pegar o emparelhamento do grafo direcionado gerado pela função em que cada arco é dominio -> imagem 
+# Embora o algoritmo para emparelhamento para grafos arbitrário (Blossom) seja lento para os limites do problema
+# O grafo gerado neste problema é funcional e uma estratégia gulosa consegue resolver 
 # Tentando fazer um guloso que pega as folhas e iterativamente remove aqueles arcos
 def get_max_matching(n : int) -> int:
     graph_out = [-1] * n
-    graph_in = [set() for i in range(n)]
+    graph_in = [set() for _ in range(n)]
     
     for i in range(n):
         image = (i**3 + i + 1)% n
-        if image != i: # Removendo self loops
-            graph_out[i] = image
-            graph_in[image].add(i)  
+        graph_out[i] = image
+        graph_in[image].add(i)  
     
     # Removendo gulosamente as folhas
     to_compute = [i for i in range(n) if len(graph_in[i]) == 0]
@@ -17,7 +17,7 @@ def get_max_matching(n : int) -> int:
     
     if len(to_compute) == 0: print("No leafs")
     
-    print(to_compute)
+    # print(to_compute)
     
     cnt = 0
     while len(to_compute) > 0:
@@ -44,10 +44,18 @@ def get_max_matching(n : int) -> int:
     # print(vis)
     
     # Agora remover os ciclos
-    remaining = [i for i in range(n) if vis[i] == False]
-    cnt += len(remaining) // 2
-    
-    # print(len(remaining) // 2, cnt)
+    for i in range(n):
+        if vis[i] == False:
+            
+            cnt_cycle = 0
+            u = i
+            while vis[u] == False:
+                vis[u] = True
+                u = graph_out[u]
+                cnt_cycle += 1
+            
+            cnt += cnt_cycle//2
+                
     return cnt
 
 def main():
@@ -56,6 +64,6 @@ def main():
     for i in range(10**5 + 1, 10**5 + 101):
         print(i, val := get_max_matching(i))
         summation += val
-    print("Soma:", summation) 
+    print("Soma:", summation, end='') 
 
 if __name__ == '__main__': main()    
